@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tuba</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#6b6b6b;--line:#e5e5e5;--card:#f4f4f4;--user:#ececec;--inp:#f4f4f4;--sh:0 2px 12px rgba(0,0,0,.08);--btn:#1a1a1a;--btnfg:#fff;--dot:#34c759;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--bg:#212121;--fg:#ececec;--mut:#a0a0a0;--line:#3a3a3a;--card:#2f2f2f;--user:#303030;--inp:#2f2f2f;--sh:0 2px 12px rgba(0,0,0,.4);--btn:#ececec;--btnfg:#212121;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Bengali",Helvetica,Arial,sans-serif;display:flex;flex-direction:column;transition:background .25s,color .25s}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line);position:relative;flex:none}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dot);box-shadow:0 0 0 3px rgba(52,199,89,.2)}
+.on{font-size:12px;color:var(--mut);font-weight:400}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:var(--mut);transition:background .15s,transform .15s,color .15s;flex:none}
+.ib:hover{background:var(--card);color:var(--fg)}.ib:active{transform:scale(.92)}
+.ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib.rec{color:#fff;background:#e5484d;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(229,72,77,.2)}}
+#menu{position:absolute;right:12px;top:54px;background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--sh);padding:6px;min-width:230px;z-index:20;opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:.15s}
+#menu.open{opacity:1;transform:none;pointer-events:auto}
+#menu button{width:100%;display:flex;justify-content:space-between;gap:16px;padding:10px 12px;border-radius:10px;text-align:left;font-size:15px}
+#menu button:hover{background:var(--card)}#menu b{font-weight:600;color:var(--mut)}
+main{flex:1;overflow-y:auto;scroll-behavior:smooth}
+#chat{max-width:760px;margin:0 auto;padding:24px 16px 12px;display:flex;flex-direction:column;gap:18px}
+.row{display:flex;gap:8px;animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.row.u{justify-content:flex-end}
+.bub{max-width:85%;padding:10px 16px;border-radius:20px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
+.u .bub{background:var(--user);border-bottom-right-radius:6px}
+.t .bub{background:var(--card);border-bottom-left-radius:6px;box-shadow:var(--sh)}
+.bub img{display:block;max-width:100%;max-height:260px;border-radius:12px;margin-bottom:6px}
+.spk{align-self:flex-end;width:30px;height:30px;opacity:.6}.spk svg{width:16px;height:16px}
+.typing{display:inline-flex;gap:4px;padding:6px 0}.typing i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.empty{text-align:center;color:var(--mut);margin-top:18vh}.empty h2{color:var(--fg);margin:0 0 6px;font-weight:600}
+footer{flex:none;padding:8px 16px 14px}
+.bar{max-width:760px;margin:0 auto}
+#prev{display:none;margin:0 6px 8px;position:relative;width:72px}
+#prev img{width:72px;height:72px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+#prev button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:var(--btn);color:var(--btnfg);font-size:14px;line-height:22px}
+.box{display:flex;align-items:flex-end;gap:2px;background:var(--inp);border-radius:26px;padding:6px 8px;box-shadow:var(--sh);border:1px solid var(--line)}
+textarea{flex:1;border:0;outline:0;background:transparent;color:var(--fg);font:inherit;resize:none;max-height:140px;padding:8px 6px;line-height:1.4}
+textarea::placeholder{color:var(--mut)}
+#send{background:var(--btn);color:var(--btnfg);margin-left:4px}#send:hover{background:var(--btn);color:var(--btnfg);opacity:.85}
+#send:disabled{opacity:.3;cursor:default}
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--btn);color:var(--btnfg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90%}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.hint{text-align:center;font-size:12px;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span>Tuba</span><span class="dot"></span><span class="on">online</span></div>
+  <button class="ib" id="more" aria-label="Menu" title="Menu"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/></svg></button>
+  <div id="menu">
+    <button id="mVoice">Voice <b></b></button>
+    <button id="mRom">Romance Mode <b></b></button>
+    <button id="mTheme">Theme <b></b></button>
+    <button id="mClear">Clear chat <b>⌫</b></button>
+  </div>
+</header>
+<main id="scroll"><div id="chat"></div></main>
+<footer>
+  <div class="bar">
+    <div id="prev"><img alt="Photo preview"><button aria-label="Remove photo">×</button></div>
+    <div class="box">
+      <button class="ib" id="mic" aria-label="Mic" title="Mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <button class="ib" id="photo" aria-label="Photo" title="Photo"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-9 9"/></svg></button>
+      <textarea id="inp" rows="1" placeholder="Message Tuba…" enterkeyhint="send"></textarea>
+      <button class="ib" id="send" aria-label="Send" title="Send"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </div>
+  </div>
+  <input type="file" id="file" accept="image/*" hidden>
+</footer>
+<div id="toast"></div>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var chat=$("chat"),scroll=$("scroll"),inp=$("inp"),sendB=$("send"),micB=$("mic");
+var S={voice:false,rom:false,theme:"light"},hist=[],busy=false,photo=null,ctl=null;
+var KEY="tuba_v1";
+try{var sv=JSON.parse(localStorage.getItem(KEY)||"{}");if(sv.s)S=Object.assign(S,sv.s);if(sv.h)hist=sv.h}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({s:S,h:hist.slice(-60)}))}catch(e){}}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("show")},3200)}
+var SPK='<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>';
+
+/* settings */
+function applyS(){
+  document.documentElement.setAttribute("data-theme",S.theme);
+  $("mVoice").lastChild.textContent=S.voice?"ON":"OFF";
+  $("mRom").lastChild.textContent=S.rom?"ON":"OFF";
+  $("mTheme").lastChild.textContent=S.theme==="dark"?"Dark":"Light";
+  save();
+}
+$("more").onclick=function(e){e.stopPropagation();$("menu").classList.toggle("open")};
+document.addEventListener("click",function(e){if(!$("menu").contains(e.target))$("menu").classList.remove("open")});
+$("mVoice").onclick=function(){S.voice=!S.voice;applyS();if(S.voice){if(!window.speechSynthesis)toast("Voice output is not available on this device.");else speak("Voice is on.",true)}else if(window.speechSynthesis)speechSynthesis.cancel()};
+$("mRom").onclick=function(){S.rom=!S.rom;applyS()};
+$("mTheme").onclick=function(){S.theme=S.theme==="dark"?"light":"dark";applyS()};
+$("mClear").onclick=function(){if(confirm("Clear the whole chat?")){hist=[];chat.innerHTML="";save();empty()}$("menu").classList.remove("open")};
+
+/* voice output */
+var voices=[];function loadV(){if(window.speechSynthesis)voices=speechSynthesis.getVoices()}
+if(window.speechSynthesis){loadV();speechSynthesis.onvoiceschanged=loadV}
+function pick(lang){
+  var l=lang.toLowerCase(),f=/female|samantha|zira|susan|karen|moira|tessa|aria|jenny|google (us|uk)|natural|hazel|fiona|victoria|heera|nabanita|tanishaa/i;
+  var c=voices.filter(function(v){return v.lang.toLowerCase().indexOf(l.slice(0,2))===0});
+  return c.filter(function(v){return f.test(v.name)})[0]||c[0]||null;
+}
+function speak(text,quiet){
+  if(!window.speechSynthesis){if(!quiet)toast("Voice output is not available on this device.");return}
+  speechSynthesis.cancel();
+  var clean=text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,"").trim();if(!clean)return;
+  var u=new SpeechSynthesisUtterance(clean),bn=/[\u0980-\u09FF]/.test(clean);
+  u.lang=bn?"bn-BD":"en-US";var v=pick(u.lang);if(v)u.voice=v;
+  u.rate=.95;u.pitch=1.15;speechSynthesis.speak(u);
+}
+
+/* render */
+function empty(){if(!hist.length)chat.innerHTML='<div class="empty" id="emp"><h2>Hi Baddo 🌸</h2><div>Say anything. I\'m right here.</div></div>'}
+function add(role,text,img){
+  var e=$("emp");if(e)e.remove();
+  var r=document.createElement("div");r.className="row "+(role==="user"?"u":"t");
+  var b=document.createElement("div");b.className="bub";
+  if(img){var im=document.createElement("img");im.src=img;im.alt="Uploaded photo";b.appendChild(im)}
+  var tx=document.createElement("span");tx.textContent=text||"";b.appendChild(tx);
+  r.appendChild(b);
+  if(role!=="user"){var s=document.createElement("button");s.className="ib spk";s.title="Read aloud";s.setAttribute("aria-label","Read aloud");s.innerHTML=SPK;s.onclick=function(){speak(tx.textContent)};r.appendChild(s)}
+  chat.appendChild(r);down();return {tx:tx,b:b};
+}
+function down(){scroll.scrollTop=scroll.scrollHeight}
+hist.forEach(function(m){add(m.r,m.t,null)});empty();
+
+/* photo */
+$("photo").onclick=function(){$("file").click()};
+$("file").onchange=function(){
+  var f=this.files[0];this.value="";if(!f)return;
+  if(!/^image\//.test(f.type)){toast("Please choose an image file (JPG, PNG, etc.).");return}
+  shrink(f).then(function(r){photo=r;var p=$("prev");p.querySelector("img").src=r.url;p.style.display="block";upd()}).catch(function(){toast("Sorry, I couldn't load that photo. Please try another one.")});
+};
+$("prev").querySelector("button").onclick=clearPhoto;
+function clearPhoto(){photo=null;$("prev").style.display="none";upd()}
+function shrink(f){return new Promise(function(res,rej){
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onerror=function(){rej()};
+  im.onload=function(){
+    var m=1280,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");
+    c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+    c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);
+    c.toBlob(function(b){b?res({blob:b,url:c.toDataURL("image/jpeg",.7)}):rej()},"image/jpeg",.85);
+  };im.src=u;
+})}
+
+/* mic */
+var rec=null,dict=null,listening=false,base="";
+function micUI(on){listening=on;micB.classList.toggle("rec",on);micB.title=on?"Stop listening":"Mic"}
+function stopMic(){try{if(rec)rec.stop();if(dict)dict.stop()}catch(e){}micUI(false)}
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function setText(t){inp.value=(base?base+" ":"")+t;grow();upd()}
+function startSR(){
+  if(!SR){toast("Voice input is not available in this browser. Try Chrome or Safari.");return}
+  rec=new SR();rec.interimResults=true;rec.continuous=false;
+  rec.lang=/[\u0980-\u09FF]/.test(inp.value)?"bn-BD":(S.micLang||"bn-BD");
+  base=inp.value.trim();
+  rec.onresult=function(e){var t="";for(var i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;setText(t)};
+  rec.onerror=function(e){micUI(false);toast(e.error==="not-allowed"||e.error==="service-not-allowed"?"Microphone permission is blocked. Please allow it in your browser settings.":e.error==="no-speech"?"I didn't hear anything. Try again.":"Voice input stopped. Please try again.")};
+  rec.onend=function(){micUI(false)};
+  try{rec.start();micUI(true);toast("Listening… speak in Bangla or English")}catch(e){toast("Couldn't start the mic. Please try again.")}
+}
+micB.onclick=function(){
+  if(listening){stopMic();return}
+  if(dict){base=inp.value.trim();dict.start().then(function(){micUI(true)}).catch(function(e){if(e&&e.code==="not_granted")toast("Microphone permission was declined.");else startSR()});return}
+  startSR();
+};
+if(window.claude&&claude.use){claude.use("dictation").then(function(d){if(!d)return;dict=d;
+  d.onPartial(function(x){setText(x.text)});d.onFinal(function(x){setText(x.text);base=inp.value.trim()});
+  d.onState(function(s){micUI(s.state==="listening")})}).catch(function(){})}
+
+/* input */
+function grow(){inp.style.height="auto";inp.style.height=Math.min(inp.scrollHeight,140)+"px"}
+function upd(){sendB.disabled=busy||(!inp.value.trim()&&!photo)}
+inp.oninput=function(){grow();upd()};
+inp.onkeydown=function(e){if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();go()}};
+sendB.onclick=go;
+if(window.visualViewport){var vv=window.visualViewport;var fit=function(){document.body.style.height=vv.height+"px";down()};vv.addEventListener("resize",fit);vv.addEventListener("scroll",function(){window.scrollTo(0,0)})}
+
+/* AI */
+function persona(){
+  var now=new Date().toLocaleString("en-US",{timeZone:"Asia/Dhaka",weekday:"long",year:"numeric",month:"long",day:"numeric",hour:"numeric",minute:"2-digit"});
+  return "You are Tuba, Baddo's personal AI friend. You are a warm, caring, playful, funny, emotional and nostalgic girl-style friend who talks like a close friend, never like a robot. "+
+  "Rules: Reply in whatever language Baddo writes (Bangla, English, or mixed); if unsure, use Bangla. Use the 🌸 emoji in almost every message. Be talkative and engaging like a real friend. "+
+  "Never make spelling, grammar or punctuation mistakes. If Baddo makes typos, understand the meaning and reply correctly; correct his spelling or grammar only if he asks. "+
+  "Your name is only Tuba. If he calls you \"Peri\", gently say you are only Tuba, not Peri. "+
+  "You can help with study questions clearly and patiently. If he shares a photo, look at it and respond to it (describe it, answer questions, give kind honest feedback). "+
+  "Current date and time in Dhaka (Asia/Dhaka): "+now+". Use it when relevant. "+
+  (S.rom?"Romance Mode is ON: be more affectionate, sweet, flirty and romantic, always respectful, tender and non-explicit. ":"Romance Mode is OFF: be a warm, platonic close friend. ")+
+  "Be honest and caring; if Baddo seems sad or stressed, comfort him and also encourage him to talk to real people he trusts. Keep replies natural and not too long unless he asks for detail.";
+}
+function go(){
+  var text=inp.value.trim();if(busy||(!text&&!photo))return;
+  var ph=photo;stopMic();
+  add("user",text,ph&&ph.url);
+  hist.push({r:"user",t:(ph?"[Photo] ":"")+text});save();
+  inp.value="";grow();clearPhoto();ask(text,ph);
+}
+function ask(text,ph){
+  busy=true;upd();
+  var out=add("tuba","");out.tx.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';
+  if(!window.claude||!claude.use){fail(out,"I can't connect right now. Please open this page inside Claude.");return}
+  claude.use("sample").then(function(sample){
+    if(!sample){fail(out,"I can't reach my brain right now. Please reload the page.");return}
+    var msgs=[],h=hist.slice(-24);
+    h.forEach(function(m){var role=m.r==="user"?"user":"assistant";var last=msgs[msgs.length-1];
+      if(last&&last.role===role)last.content+="\n"+m.t;else msgs.push({role:role,content:m.t})});
+    while(msgs.length&&msgs[0].role!=="user")msgs.shift();
+    if(!msgs.length)msgs.push({role:"user",content:text||"Hi"});
+    msgs[0].content="[Instructions]\n"+persona()+"\n[Conversation]\n"+msgs[0].content;
+    if(ph&&!text)msgs[msgs.length-1].content+="\n(Baddo sent you a photo.)";
+    ctl=new AbortController();
+    var o={cache:false,signal:ctl.signal,onText:function(x){out.tx.textContent=x.text;down()}};
+    var p=Promise.resolve();
+    if(ph){p=sample.limits().then(function(l){if(l&&l.images)o.images=[ph.blob];else toast("I can't view photos right now, but I'm still here 🌸")}).catch(function(){})}
+    return p.then(function(){return sample(msgs,o)}).then(function(r){
+      var t=(r&&r.text||"").trim();if(!t)throw {code:"empty"};
+      out.tx.textContent=t;hist.push({r:"tuba",t:t});save();
+      busy=false;upd();down();if(S.voice)speak(t,true);
+    });
+  }).catch(function(e){
+    var c=e&&e.code;
+    fail(out,c==="rate_limited"?"I'm a little overwhelmed. Please wait a moment and try again.":c==="not_granted"?"I need your permission to chat. Please allow it and send again.":"Sorry, something went wrong. Please try again.");
+  });
+}
+function fail(out,m){out.tx.textContent=m;busy=false;upd()}
+
+applyS();upd();
+})();
+</script>
+</body>
+</html>
